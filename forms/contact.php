@@ -1,49 +1,41 @@
-<?php 
+<?php
+  /**
+  * Requires the "PHP Email Form" library
+  * The "PHP Email Form" library is available only in the pro version of the template
+  * The library should be uploaded to: vendor/php-email-form/php-email-form.php
+  * For more info and help: https://bootstrapmade.com/php-email-form/
+  */
 
-$statusMsg = '';
-$msgClass = '';
-if(isset($_POST['submit'])){
-    // Get the submitted form data
-    $email = $_POST['email'];
-    $name = $_POST['nama'];
-    $subject = $_POST['subjek'];
-    $message = $_POST['pesan'];
-    
-    // Cek apakah ada data yang belum diisi
-    if(!empty($email) && !empty($name) && !empty($subject) && !empty($message)){
-        
-        if(filter_var($email, FILTER_VALIDATE_EMAIL) === false){
-            $statusMsg = 'Please enter your valid email.';
-            $msgClassk = 'errordiv';
-        }else{
-            // Pengaturan penerima email dan subjek email
-            $toEmail = 'm.rizal@sig.id'; // Ganti dengan alamat email yang Anda inginkan
-            $emailSubject = 'Pesan website dari '.$name;
-            $htmlContent = '<h2> via Form Kontak Website</h2>
-                <h4>Name</h4><p>'.$name.'</p>
-                <h4>Email</h4><p>'.$email.'</p>
-                <h4>Subject</h4><p>'.$subject.'</p>
-                <h4>Message</h4><p>'.$message.'</p>';
-            
-            // Mengatur Content-Type header untuk mengirim email dalam bentuk HTML
-            $headers = "MIME-Version: 1.0" . "\r\n";
-            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-            
-            // Header tambahan
-            $headers .= 'From: '.$name.'<'.$email.'>'. "\r\n";
-            
-            // Send email
-            if(mail($toEmail,$emailSubject,$htmlContent,$headers)){
-                $statusMsg = 'Pesan Anda sudah terkirim dengan sukses !';
-                $msgClass = 'succdiv';
-            }else{
-                $statusMsg = 'Maaf pesan Anda gagal terkirim, silahkan ulangi lagi.';
-                $msgClass = 'errordiv';
-            }
-        }
-    }else{
-        $statusMsg = 'Harap mengisi semua field data';
-        $msgClass = 'errordiv';
-    }
-}
+  // Replace contact@example.com with your real receiving email address
+  $receiving_email_address = 'm.rizal@sig.id';
+
+  if( file_exists('../assets/vendor/php-email-form/php-email-form.php')) {
+    include('../assets/vendor/php-email-form/php-email-form.php');
+} else {
+    die( 'Unable to load the "PHP Email Form" Library!');
+  }
+
+  $contact = new PHP_Email_Form;
+  $contact->ajax = true;
+  
+  $contact->to = $receiving_email_address;
+  $contact->from_name = $_POST['name'];
+  $contact->from_email = $_POST['email'];
+  $contact->subject = $_POST['subject'];
+
+  // Uncomment below code if you want to use SMTP to send emails. You need to enter your correct SMTP credentials
+  /*
+  $contact->smtp = array(
+    'host' => 'example.com',
+    'username' => 'example',
+    'password' => 'pass',
+    'port' => '587'
+  );
+  */
+
+  $contact->add_message( $_POST['name'], 'From');
+  $contact->add_message( $_POST['email'], 'Email');
+  $contact->add_message( $_POST['message'], 'Message', 10);
+
+  echo $contact->send();
 ?>
